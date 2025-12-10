@@ -1,20 +1,26 @@
 import app.LoginLogout;
 import com.codeborne.selenide.Configuration;
-import com.codeborne.selenide.Selenide;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
+import pages.LoginPage;
+import pages.MainPage;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import static app.UI._$;
 import static com.codeborne.selenide.Selenide.open;
 
 public class BaseTest {
 
 
     private static final String CONFIG_FILE_PATH = "src/test/resources/config.properties";
+    private static final String FILE_STORAGE = "src/test/resources";
     private static final String BASE_URL_KEY = "baseUrl";
+    private static final String TIMEOUT_KEY = "timeout";
+    private static final String BROWSER_KEY = "browser";
+    private static final String BROWSER_SIZE_KEY = "browserSize";
     private Properties config;
 
     /**
@@ -32,14 +38,10 @@ public class BaseTest {
             // Можно добавить тут проброс исключения, чтобы тесты не запускались
         }
 
-        // Настройка Selenide
-        // Selenide автоматически управляет WebDriver, но можно указать некоторые настройки
-        // Устанавливаем браузер Chrome
-        Configuration.browser = "chrome";
-
-        // Опционально: можно настроить таймауты, размер окна и т.д.
-        // Configuration.timeout = 10000; // Таймаут 10 секунд
-        // Configuration.browserSize = "1920x1080";
+        // Настройка Selenide из проперти
+        Configuration.browser = config.getProperty(BROWSER_KEY);
+        Configuration.timeout = Long.parseLong(config.getProperty(TIMEOUT_KEY));
+        Configuration.browserSize = config.getProperty(BROWSER_SIZE_KEY);
     }
 
     /**
@@ -57,7 +59,6 @@ public class BaseTest {
     }
 
 
-
     /**
      * Выполняет логин, запускает переданные действия и выполняет разлогин.
      * * @param login Логин пользователя
@@ -70,7 +71,7 @@ public class BaseTest {
         try {
             // 1. **ЛОГИН**
             System.out.println("Попытка логина под пользователем: " + login);
-            performLogin(login, password);
+            _$(LoginPage.class).performLogin(login, password);
 
             // 2. **ДЕЙСТВИЯ ПОЛЬЗОВАТЕЛЯ**
             System.out.println("Выполнение пользовательских действий...");
@@ -83,38 +84,9 @@ public class BaseTest {
         } finally {
             // 3. **РАЗЛОГИН** (Выполняется в любом случае, даже если действия упали)
             System.out.println("Выполнение разлогина.");
-            performLogout();
+            _$(MainPage.class).performLogout();
         }
         System.out.println("--- Блок 'doAsUser' завершен ---");
-    }
-
-    // --- ЗАГЛУШКИ ДЛЯ ЛОГИНА И РАЗЛОГИНА ---
-
-    /**
-     * TODO: Заменить на реальную логику ввода данных и нажатия кнопки входа.
-     */
-    private void performLogin(String login, String password) {
-        // Пример (используйте реальные локаторы вашего приложения):
-        // $("#login-field").setValue(login);
-        // $("#password-field").setValue(password);
-        // $("#login-button").click();
-
-        // Для примера: имитация логина
-        System.out.println("Логин успешно выполнен (заглушка).");
-        // Предполагаем, что после логина мы на главной странице
-        Selenide.open("/");
-    }
-
-    /**
-     * TODO: Заменить на реальную логику клика по кнопке выхода.
-     */
-    private void performLogout() {
-        // Пример (используйте реальные локаторы вашего приложения):
-        // $("#user-menu").click();
-        // $("#logout-link").click();
-
-        // Для примера: имитация разлогина
-        System.out.println("Разлогин успешно выполнен (заглушка).");
     }
 }
 
