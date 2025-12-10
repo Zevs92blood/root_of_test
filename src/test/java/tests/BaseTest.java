@@ -1,3 +1,5 @@
+package tests;
+
 import app.LoginLogout;
 import com.codeborne.selenide.Configuration;
 import org.testng.annotations.BeforeMethod;
