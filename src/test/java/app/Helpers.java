@@ -148,6 +148,32 @@ public class Helpers {
                         comparison.getControlDetails().getValue(),
                         comparison.getTestDetails().getValue()
                 );
+            } else if (type == ComparisonType.ATTR_VALUE) {
+
+                // --- Сборка полного элемента для Control (Ожидалось) ---
+                Node controlNode = comparison.getControlDetails().getTarget();
+                Node controlElement = controlNode != null ? controlNode.getParentNode() : null;
+                String controlElementFull = formatElementAsString(controlElement);
+
+                // --- Сборка полного элемента для Test (Найдено) ---
+                Node testNode = comparison.getTestDetails().getTarget();
+                Node testElement = testNode != null ? testNode.getParentNode() : null;
+                String testElementFull = formatElementAsString(testElement);
+
+                String attrName = comparison.getControlDetails().getTarget().getNodeName();
+
+                differenceDescription = String.format(
+                        "Отличие ЗНАЧЕНИЯ АТРИБУТА: Путь: %s\n" +
+                                "Атрибут: '%s', Ожидалось: '%s', Найдено: '%s'\n" +
+                                "Ожидаемый элемент: <%s>\n" +
+                                "Найденный элемент: <%s>",
+                        testPath,
+                        attrName,
+                        comparison.getControlDetails().getValue(),
+                        comparison.getTestDetails().getValue(),
+                        controlElementFull,
+                        testElementFull
+                );
             } else if (type == ComparisonType.TEXT_VALUE) {
                 // Отличие текстового значения элемента
                 differenceDescription = String.format(
@@ -199,6 +225,26 @@ public class Helpers {
 
             differences.add(differenceDescription);
             return outcome;
+        }
+
+        // Новый вспомогательный метод (добавить в класс Helpers или CustomDifferenceCollector)
+        private static String formatElementAsString(Node elementNode) {
+            if (elementNode == null || elementNode.getNodeType() != Node.ELEMENT_NODE) {
+                return "N/A";
+            }
+
+            StringBuilder sb = new StringBuilder(elementNode.getNodeName());
+
+            // Получаем список атрибутов
+            org.w3c.dom.NamedNodeMap attributes = elementNode.getAttributes();
+            if (attributes != null) {
+                for (int i = 0; i < attributes.getLength(); i++) {
+                    Node attr = attributes.item(i);
+                    sb.append(" ").append(attr.getNodeName())
+                            .append("=\"").append(attr.getNodeValue()).append("\"");
+                }
+            }
+            return sb.toString();
         }
     }
 }
